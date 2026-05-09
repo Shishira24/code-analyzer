@@ -59,25 +59,26 @@ def analyze_pylint(directory):
         )
         output = result.stdout + result.stderr
 
-        # Extract score
         score = 0.0
         warnings = 0
         errors = 0
 
         for line in output.split('\n'):
-            if 'Your code has been rated at' in line:
+            if 'rated at' in line:
                 try:
-                    score = float(line.split('at')[1].split('/')[0].strip())
+                    part = line.split('rated at')[1]
+                    score = float(part.split('/')[0].strip())
                 except:
                     score = 0.0
-            if line.startswith('W:'):
+            if ': W' in line:
                 warnings += 1
-            if line.startswith('E:'):
+            if ': E' in line:
                 errors += 1
 
         return round(score, 2), warnings, errors
 
     except Exception as e:
+        print(f"Pylint error: {str(e)}")
         return 0.0, 0, 0
 
 def analyze_repo(repo_url):

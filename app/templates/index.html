@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Analyzer</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        header {
+            background: #1e293b;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        header h1 {
+            font-size: 20px;
+            color: #38bdf8;
+        }
+
+        #logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: none;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: calc(100vh - 57px);
+        }
+
+        .sidebar {
+            background: #1e293b;
+            border-right: 1px solid #334155;
+            padding: 24px 16px;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            font-size: 13px;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-bottom: 16px;
+            letter-spacing: 1px;
+        }
+
+        .project-item {
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            transition: all 0.2s;
+        }
+
+        .project-item:hover, .project-item.active {
+            border-color: #38bdf8;
+            background: #1e3a5f;
+        }
+
+        .project-item h3 {
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .project-item p {
+            font-size: 11px;
+            color: #64748b;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .add-project {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .main {
+            padding: 32px;
+            overflow-y: auto;
+        }
+
+        .auth-box {
+            max-width: 400px;
+            margin: 80px auto;
+            background: #1e293b;
+            padding: 32px;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+
+        .auth-box h2 {
+            margin-bottom: 24px;
+            color: #38bdf8;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 6px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px 12px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .toggle-auth {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .toggle-auth span {
+            color: #38bdf8;
+            cursor: pointer;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .metric-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+        }
+
+        .metric-card .label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .metric-card .value {
+            font-size: 36px;
+            font-weight: 700;
+            color: #38bdf8;
+        }
+
+        .metric-card .sublabel {
+            font-size: 12px;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        .analyze-btn {
+            background: #22c55e;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .analyze-btn:disabled {
+            background: #334155;
+            cursor: not-allowed;
+        }
+
+        .history-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1e293b;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .history-table th {
+            background: #0f172a;
+            padding: 12px 16px;
+            text-align: left;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #64748b;
+            letter-spacing: 1px;
+        }
+
+        .history-table td {
+            padding: 12px 16px;
+            border-top: 1px solid #334155;
+            font-size: 14px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 32px;
+            color: #475569;
+        }
+
+        .empty-state h2 {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 32px;
+            width: 400px;
+        }
+
+        .modal h2 {
+            margin-bottom: 24px;
+            color: #38bdf8;
+        }
+
+        .error { color: #ef4444; font-size: 13px; margin-top: 8px; }
+        .success { color: #22c55e; font-size: 13px; margin-top: 8px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⚡ Code Analyzer</h1>
+    <button id="logout-btn" onclick="logout()">Logout</button>
+</header>
+
+<div class="container">
+    <div class="sidebar" id="sidebar" style="display:none">
+        <button class="add-project" onclick="showAddProject()">+ Add Project</button>
+        <h2>Your Projects</h2>
+        <div id="project-list"></div>
+    </div>
+
+    <div class="main" id="main">
+        <!-- Auth or Dashboard renders here -->
+    </div>
+</div>
+
+<!-- Add Project Modal -->
+<div class="modal-overlay" id="modal">
+    <div class="modal">
+        <h2>Add Project</h2>
+        <div class="form-group">
+            <label>Project Name</label>
+            <input type="text" id="project-name" placeholder="My Project">
+        </div>
+        <div class="form-group">
+            <label>GitHub Repo URL</label>
+            <input type="text" id="project-url" placeholder="https://github.com/username/repo">
+        </div>
+        <div id="modal-msg"></div>
+        <div style="display:flex; gap:12px; margin-top:16px">
+            <button class="btn-primary" onclick="addProject()">Add Project</button>
+            <button class="btn-primary" style="background:#334155;color:#e2e8f0" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = 'http://127.0.0.1:5000';
+    let token = localStorage.getItem('token');
+    let selectedProjectId = null;
+
+    function init() {
+        if (token) {
+            showDashboard();
+        } else {
+            showAuth('login');
+        }
+    }
+
+    function showAuth(mode) {
+        document.getElementById('sidebar').style.display = 'none';
+        document.getElementById('logout-btn').style.display = 'none';
+        document.getElementById('main').innerHTML = `
+            <div class="auth-box">
+                <h2>${mode === 'login' ? 'Login' : 'Register'}</h2>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="email" placeholder="you@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="password" placeholder="••••••••">
+                </div>
+                <div id="auth-msg"></div>
+                <button class="btn-primary" onclick="${mode === 'login' ? 'login()' : 'register()'}">${mode === 'login' ? 'Login' : 'Register'}</button>
+                <div class="toggle-auth">
+                    ${mode === 'login' ? 'No account? <span onclick="showAuth(\'register\')">Register</span>' : 'Have an account? <span onclick="showAuth(\'login\')">Login</span>'}
+                </div>
+            </div>
+        `;
+    }
+
+    async function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const res = await fetch(`${API}/auth/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password})
+        });
+        const data = await res.json();
+        if (res.ok) {
+            token = data.token;
+            localStorage.setItem('token', token);
+            showDashboard();
+        } else {
+            document.getElementById('auth-msg').innerHTML = `<div class="error">${data.message}</div>`;
+        }
+    }
+
+    async function register() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const res = await fetch(`${API}/auth/register`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password})
+        });
+        const data = await res.json();
+        if (res.ok) {
+            document.getElementById('auth-msg').innerHTML = `<div class="success">Registered! Please login.</div>`;
+            setTimeout(() => showAuth('login'), 1000);
+        } else {
+            document.getElementById('auth-msg').innerHTML = `<div class="error">${data.message}</div>`;
+        }
+    }
+
+    function logout() {
+        token = null;
+        localStorage.removeItem('token');
+        showAuth('login');
+    }
+
+    async function showDashboard() {
+        document.getElementById('sidebar').style.display = 'block';
+        document.getElementById('logout-btn').style.display = 'block';
+        await loadProjects();
+        if (!selectedProjectId) {
+            document.getElementById('main').innerHTML = `
+                <div class="empty-state">
+                    <h2>Select a project</h2>
+                    <p>Choose a project from the sidebar or add a new one</p>
+                </div>
+            `;
+        }
+    }
+
+    async function loadProjects() {
+        const res = await fetch(`${API}/projects/`, {
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+        const data = await res.json();
+        const list = document.getElementById('project-list');
+        list.innerHTML = '';
+        data.projects.forEach(p => {
+            const div = document.createElement('div');
+            div.className = `project-item ${p.id === selectedProjectId ? 'active' : ''}`;
+            div.innerHTML = `<h3>${p.name}</h3><p>${p.repo_url || 'No URL'}</p>`;
+            div.onclick = () => selectProject(p.id, p.name);
+            list.appendChild(div);
+        });
+    }
+
+    async function selectProject(id, name) {
+        selectedProjectId = id;
+        await loadProjects();
+        await loadResults(id, name);
+    }
+
+    async function loadResults(id, name) {
+        const res = await fetch(`${API}/projects/${id}/results`, {
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+        const data = await res.json();
+        const results = data.results;
+        const latest = results[0];
+
+        document.getElementById('main').innerHTML = `
+            <h2 style="margin-bottom:24px">${name}</h2>
+            ${latest ? `
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <div class="label">Complexity Score</div>
+                    <div class="value">${latest.complexity_score}</div>
+                    <div class="sublabel">Average cyclomatic complexity</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Pylint Score</div>
+                    <div class="value">${latest.pylint_score}</div>
+                    <div class="sublabel">Out of 10</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Warnings</div>
+                    <div class="value" style="color:#f59e0b">${latest.pylint_warnings}</div>
+                    <div class="sublabel">Pylint warnings</div>
+                </div>
+                <div class="metric-card">
+                    <div class="label">Errors</div>
+                    <div class="value" style="color:#ef4444">${latest.pylint_errors}</div>
+                    <div class="sublabel">Pylint errors</div>
+                </div>
+            </div>` : '<p style="color:#64748b;margin-bottom:24px">No analysis run yet</p>'}
+            <button class="analyze-btn" id="analyze-btn" onclick="triggerAnalysis(${id})">▶ Run Analysis</button>
+            ${results.length > 0 ? `
+            <h3 style="margin-bottom:16px;color:#94a3b8">History</h3>
+            <table class="history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Complexity</th>
+                        <th>Pylint Score</th>
+                        <th>Warnings</th>
+                        <th>Errors</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${results.map(r => `
+                    <tr>
+                        <td>${new Date(r.analyzed_at).toLocaleString()}</td>
+                        <td>${r.complexity_score}</td>
+                        <td>${r.pylint_score}</td>
+                        <td>${r.pylint_warnings}</td>
+                        <td>${r.pylint_errors}</td>
+                    </tr>`).join('')}
+                </tbody>
+            </table>` : ''}
+        `;
+    }
+
+    async function triggerAnalysis(id) {
+        const btn = document.getElementById('analyze-btn');
+        btn.disabled = true;
+        btn.textContent = 'Analyzing...';
+        await fetch(`${API}/projects/${id}/analyze`, {
+            method: 'POST',
+            headers: {'Authorization': `Bearer ${token}`}
+        });
+        setTimeout(async () => {
+            await loadResults(id, document.querySelector('h2').textContent);
+            btn.disabled = false;
+            btn.textContent = '▶ Run Analysis';
+        }, 20000);
+    }
+
+    function showAddProject() {
+        document.getElementById('modal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('modal').classList.remove('active');
+        document.getElementById('project-name').value = '';
+        document.getElementById('project-url').value = '';
+        document.getElementById('modal-msg').innerHTML = '';
+    }
+
+    async function addProject() {
+        const name = document.getElementById('project-name').value;
+        const url = document.getElementById('project-url').value;
+        if (!name) {
+            document.getElementById('modal-msg').innerHTML = '<div class="error">Name is required</div>';
+            return;
+        }
+        const res = await fetch(`${API}/projects/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({name, repo_url: url})
+        });
+        const data = await res.json();
+        if (res.ok) {
+            closeModal();
+            await loadProjects();
+            selectProject(data.project.id, data.project.name);
+        } else {
+            document.getElementById('modal-msg').innerHTML = `<div class="error">${data.message}</div>`;
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>

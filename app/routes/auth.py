@@ -3,6 +3,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from app import db
 from app.models.user import User
+from flask import render_template
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -35,3 +36,7 @@ def login():
 
     token = create_access_token(identity=str(user.id))
     return jsonify({"message": "Login successful", "token": token}), 200
+
+@auth_bp.route('/', methods=['GET'])
+def index():
+    return render_template('index.html')
