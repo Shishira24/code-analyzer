@@ -1,15 +1,17 @@
+"""Analysis routes for triggering and retrieving code analysis results"""
+import threading
 from flask import Blueprint, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
 from app.models.project import Project
 from app.models.analysis import AnalysisResult
 from app.services.analyzer import analyze_repo
-import threading
+
 
 analysis_bp = Blueprint('analysis', __name__)
 
 def run_analysis_task(app, project_id, repo_url):
-    """Run analysis in background thread"""
+    """Run analysis in background thread and save results to database"""
     with app.app_context():
         try:
             results = analyze_repo(repo_url)
@@ -28,6 +30,7 @@ def run_analysis_task(app, project_id, repo_url):
 @analysis_bp.route('/<int:project_id>/analyze', methods=['POST'])
 @jwt_required()
 def trigger_analysis(project_id):
+    """Trigger code analysis for a project in the background"""
     from flask import current_app
     current_user_id = get_jwt_identity()
 
@@ -55,6 +58,7 @@ def trigger_analysis(project_id):
 @analysis_bp.route('/<int:project_id>/results', methods=['GET'])
 @jwt_required()
 def get_results(project_id):
+    """Get all analysis results for a project"""
     current_user_id = get_jwt_identity()
 
     project = Project.query.filter_by(

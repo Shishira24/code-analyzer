@@ -1,14 +1,16 @@
-from flask import Blueprint, request, jsonify
+"""Authentication routes for the Code Analyzer API"""
+from flask import Blueprint, request, jsonify, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_jwt_extended import create_access_token
 from app import db
 from app.models.user import User
-from flask import render_template
+
 
 auth_bp = Blueprint('auth', __name__)
 
 @auth_bp.route('/register', methods=['POST'])
 def register():
+    """Register a new user with email and password"""
     data = request.get_json()
     if not data or not data.get('email') or not data.get('password'):
         return jsonify({"message": "Email and password required"}), 400
@@ -26,6 +28,7 @@ def register():
 
 @auth_bp.route('/login', methods=['POST'])
 def login():
+    """Authenticate user and return a JWT token"""
     data = request.get_json()
     if not data or not data.get('email') or not data.get('password'):
         return jsonify({"message": "Email and password required"}), 400
@@ -39,4 +42,5 @@ def login():
 
 @auth_bp.route('/', methods=['GET'])
 def index():
+    """Serve the main dashboard page"""
     return render_template('index.html')

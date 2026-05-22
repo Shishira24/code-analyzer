@@ -1,12 +1,12 @@
+"""Analysing the repository"""
 import os
+import subprocess
 import shutil
 import tempfile
 from radon.complexity import cc_visit
-from radon.metrics import mi_visit
-import subprocess
 
 def clone_repo(repo_url):
-    """Clone a github repo into a temp directory and return the path"""
+    """Cloning the repository"""
     temp_dir = tempfile.mkdtemp()
     try:
         import git
@@ -17,11 +17,10 @@ def clone_repo(repo_url):
         raise Exception(f"Failed to clone repo: {str(e)}")
 
 def get_python_files(directory):
-    """Get all python files in a directory"""
+    """Get python files from the repo"""
     python_files = []
     for root, dirs, files in os.walk(directory):
-        # Skip hidden directories and common non-source dirs
-        dirs[:] = [d for d in dirs if not d.startswith('.') 
+        dirs[:] = [d for d in dirs if not d.startswith('.')
                    and d not in ['venv', 'env', '__pycache__', 'node_modules']]
         for file in files:
             if file.endswith('.py'):
@@ -50,7 +49,7 @@ def analyze_complexity(python_files):
     return round(total_complexity / total_functions, 2)
 
 def analyze_pylint(directory):
-    """Run pylint on the directory and return score, warnings, errors"""
+    """Run pylint on the directory and return score,warnings and errors"""
     try:
         result = subprocess.run(
             ['pylint', directory, '--output-format=text', '--score=y'],
@@ -82,7 +81,7 @@ def analyze_pylint(directory):
         return 0.0, 0, 0
 
 def analyze_repo(repo_url):
-    """Main function - clone repo, run all analysis, return results"""
+    """Main function-clone repo,run all analysis,return results"""
     temp_dir = None
     try:
         temp_dir = clone_repo(repo_url)

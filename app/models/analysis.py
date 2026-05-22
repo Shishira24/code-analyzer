@@ -1,7 +1,10 @@
-from app import db
+"""Analysis model for the Code Analyzer application"""
+
 from datetime import datetime
+from app import db
 
 class AnalysisResult(db.Model):
+    """Represents analysis of a project"""
     id = db.Column(db.Integer, primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey('project.id'), nullable=False)
     complexity_score = db.Column(db.Float, nullable=True)
@@ -11,6 +14,7 @@ class AnalysisResult(db.Model):
     analyzed_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     def to_dict(self):
+        """Return analysis data as a dictionary"""
         return {
             "id": self.id,
             "project_id": self.project_id,
@@ -20,3 +24,4 @@ class AnalysisResult(db.Model):
             "pylint_errors": self.pylint_errors,
             "analyzed_at": self.analyzed_at.isoformat()
         }
+    

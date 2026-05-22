@@ -1,3 +1,4 @@
+"""Project routes for creating, retrieving and deleting projects."""
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
@@ -8,6 +9,7 @@ projects_bp = Blueprint('projects', __name__)
 @projects_bp.route('/', methods=['GET'])
 @jwt_required()
 def get_projects():
+    """Get all projects for the authenticated user"""
     current_user_id = get_jwt_identity()
     projects = Project.query.filter_by(user_id=current_user_id).all()
     return jsonify({"projects": [p.to_dict() for p in projects]}), 200
@@ -15,6 +17,7 @@ def get_projects():
 @projects_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_project():
+    """Create a new project for the authenticated user"""
     data = request.get_json()
     if not data or not data.get('name'):
         return jsonify({"message": "Project name is required"}), 400
@@ -34,6 +37,7 @@ def create_project():
 @projects_bp.route('/<int:project_id>', methods=['DELETE'])
 @jwt_required()
 def delete_project(project_id):
+    """Delete a project by ID for the authenticated user"""
     current_user_id = get_jwt_identity()
     project = Project.query.filter_by(
         id=project_id,
