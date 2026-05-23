@@ -23,6 +23,6 @@ class AnalysisResult(db.Model):
             "pylint_score": self.pylint_score,
             "pylint_warnings": self.pylint_warnings,
             "pylint_errors": self.pylint_errors,
-            "analyzed_at": self.analyzed_at.isoformat()
+            "analyzed_at": self.analyzed_at.strftime('%Y-%m-%dT%H:%M:%S+00:00')
         }
     
