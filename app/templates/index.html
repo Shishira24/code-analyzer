@@ -435,6 +435,11 @@
         const res = await fetch(`${API}/projects/${id}/results`, {
             headers: {'Authorization': `Bearer ${token}`}
         });
+        if (res.status === 401) 
+        {
+            logout();
+            return;
+        }
         const data = await res.json();
         const results = data.results;
         const latest = results[0];
