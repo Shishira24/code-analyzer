@@ -1,7 +1,8 @@
 """Analysis model for the Code Analyzer application"""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
+
 
 class AnalysisResult(db.Model):
     """Represents analysis of a project"""
@@ -11,7 +12,7 @@ class AnalysisResult(db.Model):
     pylint_score = db.Column(db.Float, nullable=True)
     pylint_warnings = db.Column(db.Integer, nullable=True)
     pylint_errors = db.Column(db.Integer, nullable=True)
-    analyzed_at = db.Column(db.DateTime, default=datetime.utcnow)
+    analyzed_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
 
     def to_dict(self):
         """Return analysis data as a dictionary"""
