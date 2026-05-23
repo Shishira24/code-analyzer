@@ -492,19 +492,17 @@
     }
 
     async function triggerAnalysis(id) {
-        const btn = document.getElementById('analyze-btn');
-        btn.disabled = true;
-        btn.textContent = 'Analyzing...';
-        await fetch(`${API}/projects/${id}/analyze`, {
-            method: 'POST',
-            headers: {'Authorization': `Bearer ${token}`}
-        });
-        setTimeout(async () => {
-            await loadResults(id, document.querySelector('h2').textContent);
-            btn.disabled = false;
-            btn.textContent = '▶ Run Analysis';
-        }, 20000);
-    }
+    const btn = document.getElementById('analyze-btn');
+    btn.disabled = true;
+    btn.textContent = 'Analyzing...';
+    await fetch(`/projects/${id}/analyze`, {
+        method: 'POST',
+        headers: {'Authorization': `Bearer ${token}`}
+    });
+    await loadResults(id, document.querySelector('h2').textContent);
+    btn.disabled = false;
+    btn.textContent = 'Run Analysis';
+}
 
     function showAddProject() {
         document.getElementById('modal').classList.add('active');
