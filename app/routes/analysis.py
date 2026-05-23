@@ -24,8 +24,11 @@ def run_analysis_task(app, project_id, repo_url):
             )
             db.session.add(analysis)
             db.session.commit()
+            print(f"Analysis completed for project {project_id}: {results}")
         except Exception as e:
-            print(f"Analysis failed: {str(e)}")
+            import traceback
+            print(f"Analysis failed for project {project_id}: {str(e)}")
+            print(traceback.format_exc())
 
 @analysis_bp.route('/<int:project_id>/analyze', methods=['POST'])
 @jwt_required()
