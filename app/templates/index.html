@@ -538,7 +538,7 @@
             await loadProjects();
             selectProject(data.project.id, data.project.name);
         } else {
-            document.getElementById('modal-msg').innerHTML = `<div class="error">${data.message}</div>`;
+            document.getElementById('modal-msg').innerHTML = `<div class="error">${data.message || 'Something went wrong. Please try again.'}</div>`;        
         }
     }
 
