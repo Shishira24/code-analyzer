@@ -6,3 +6,5 @@ python-dotenv
 radon
 pylint
 gitpython
+psycopg2-binary
+gunicorn
