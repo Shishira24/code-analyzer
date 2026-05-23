@@ -72,3 +72,9 @@ code_analyzer/
 | DELETE | /projects/:id | Delete project |
 | POST | /projects/:id/analyze | Trigger analysis |
 | GET | /projects/:id/results | Get analysis results |
+
+## Known Limitations
+
+- Analysis runs synchronously due to Render free tier worker constraints. 
+  In a production environment, this would use Celery with Redis for reliable async task processing.
+- Currently supports public GitHub repositories only. Private repos would require GitHub OAuth or personal access token authentication.
