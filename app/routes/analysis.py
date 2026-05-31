@@ -42,6 +42,7 @@ def trigger_analysis(project_id):
             "results": analysis.to_dict()
         }), 200
     except Exception as e:
+        db.session.rollback()
         return jsonify({"message": f"Analysis failed: {str(e)}"}), 500
 
 
