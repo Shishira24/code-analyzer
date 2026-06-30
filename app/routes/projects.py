@@ -2,7 +2,9 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app import db
+from app.models.analysis import AnalysisResult
 from app.models.project import Project
+
 
 projects_bp = Blueprint('projects', __name__)
 
@@ -46,6 +48,9 @@ def delete_project(project_id):
 
     if not project:
         return jsonify({"message": "Project not found"}), 404
+    
+    # Delete analysis results first
+    AnalysisResult.query.filter_by(project_id=project_id).delete()
 
     db.session.delete(project)
     db.session.commit()
