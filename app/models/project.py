@@ -1,5 +1,5 @@
 """Project model for the Code Analyzer application"""
-from datetime import datetime
+from datetime import datetime, timezone
 from app import db
 
 class Project(db.Model):
@@ -7,7 +7,7 @@ class Project(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     repo_url = db.Column(db.String(300), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     def to_dict(self):
